@@ -1,6 +1,11 @@
+import 'dart:convert';
+
 import 'package:flutter/material.dart';
+import 'package:flutter_shopping/data/categories.dart';
+import 'package:flutter_shopping/models/category.dart';
 import 'package:flutter_shopping/models/grocery_item.dart';
 import 'package:flutter_shopping/widgets/new_item.dart';
+import 'package:http/http.dart' as http;
 
 class Grocerylist extends StatefulWidget {
   const Grocerylist({super.key});
@@ -10,7 +15,37 @@ class Grocerylist extends StatefulWidget {
 }
 
 class _GrocerylistState extends State<Grocerylist> {
-  final List<GroceryItem> _groceryItems = [];
+  List<GroceryItem> _groceryItems = [];
+
+  @override
+  void initState() {
+    super.initState();
+    _loadGroceryItems();
+  }
+
+  void _loadGroceryItems() async {
+    final url = Uri.https(
+        'flutter-http-prep-default-rtdb.firebaseio.com', 'shopping-list.json');
+    final response = await http.get(url);
+    final Map<String, dynamic> listData = json.decode(response.body);
+    final List<GroceryItem> loadedItems = [];
+    for (final item in listData.entries) {
+      final category = categories.entries
+          .firstWhere(
+              (element) => element.value.title == item.value['category'])
+          .value;
+      loadedItems.add(GroceryItem(
+        id: item.key,
+        name: item.value['name'],
+        category: category,
+        quantity: item.value['quantity'],
+      ));
+      setState(() {
+        _groceryItems = loadedItems;
+      });
+    }
+  }
+
   Widget _buildContent() {
     if (_groceryItems.isEmpty) {
       return const Center(
@@ -45,18 +80,13 @@ class _GrocerylistState extends State<Grocerylist> {
   }
 
   void _addItem() async {
-    final newItem = await Navigator.of(context).push<GroceryItem>(
+    _loadGroceryItems();
+
+    await Navigator.of(context).push<GroceryItem>(
       MaterialPageRoute(
         builder: (ctx) => const NewItem(),
       ),
     );
-    if (newItem != null) {
-      setState(() {
-        _groceryItems.add(newItem);
-      });
-    } else {
-      return;
-    }
   }
 
   @override
