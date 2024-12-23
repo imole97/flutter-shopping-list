@@ -16,7 +16,7 @@ class Grocerylist extends StatefulWidget {
 
 class _GrocerylistState extends State<Grocerylist> {
   List<GroceryItem> _groceryItems = [];
-
+  bool _isLoading = true;
   @override
   void initState() {
     super.initState();
@@ -42,16 +42,23 @@ class _GrocerylistState extends State<Grocerylist> {
       ));
       setState(() {
         _groceryItems = loadedItems;
+        _isLoading = false;
       });
     }
   }
 
   Widget _buildContent() {
+    if (_isLoading) {
+      return const Center(
+        child: CircularProgressIndicator(),
+      );
+    }
     if (_groceryItems.isEmpty) {
       return const Center(
         child: Text('No items added yet'),
       );
-    } else {
+    }
+    if (_groceryItems.isNotEmpty) {
       return ListView.builder(
         itemCount: _groceryItems.length,
         itemBuilder: (ctx, index) => Dismissible(
@@ -71,6 +78,7 @@ class _GrocerylistState extends State<Grocerylist> {
         ),
       );
     }
+    return const SizedBox.shrink();
   }
 
   void _removeItem(GroceryItem item) {
@@ -80,13 +88,18 @@ class _GrocerylistState extends State<Grocerylist> {
   }
 
   void _addItem() async {
-    _loadGroceryItems();
-
-    await Navigator.of(context).push<GroceryItem>(
+    final newItem = await Navigator.of(context).push<GroceryItem>(
       MaterialPageRoute(
         builder: (ctx) => const NewItem(),
       ),
     );
+    if (newItem != null) {
+      setState(() {
+        _groceryItems.add(newItem);
+      });
+    } else {
+      return;
+    }
   }
 
   @override
