@@ -57,7 +57,7 @@ class _GrocerylistState extends State<Grocerylist> {
       }
     } catch (e) {
       setState(() {
-        _error = 'An error occurred.';
+        _error = 'An error occurred';
         _isLoading = false;
       });
     }
