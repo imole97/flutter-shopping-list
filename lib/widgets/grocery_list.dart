@@ -46,18 +46,10 @@ class _GrocerylistState extends State<Grocerylist> {
         category: category,
         quantity: item.value['quantity'],
       ));
-      // setState(() {
-      //   _groceryItems = loadedItems;
-      //   _isLoading = false;
-      // });
+     
     }
     return loadedItems;
-    // } catch (e) {
-    //   setState(() {
-    //     _error = 'An error occurred.';
-    //     _isLoading = false;
-    //   });
-    // }
+  
   }
 
   void _removeItem(GroceryItem item) async {
