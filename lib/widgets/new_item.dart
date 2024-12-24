@@ -39,7 +39,7 @@ class _NewItemState extends State<NewItem> {
         ),
       );
       final Map<String, dynamic> resData = json.decode(response.body);
-      print(resData);
+    
       if (!context.mounted) {
         return;
       }
